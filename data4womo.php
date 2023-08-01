@@ -61,6 +61,8 @@ function data4WoMo_options_page() {
     </form>
     <h1>Erlaubte Shortcodes und Funktionen des Plugins</h1>
     <div style="margin-top: 20px; margin-bottom: 10px;">
+        <h3>Syntax</h3>
+        <p>[data4WoMo_Value bezeichnung="<i>Funktion</i>"]</p>
         <table border="1" spacing="5">
             <tr>
                 <th valign="top" width="200px">Shortcode</th>
@@ -196,7 +198,7 @@ function data4WoMo_with_parametern($atts) {
 
         switch(strtolower($data4WoMo_params['bezeichnung'])){
             case "gsm":
-                $data4WoMo_sql = "SELECT CONCAT('Status: <b>*',connstate,'*</b> (<i>',conntype,'</i>) mit IP-Adresse: <b>',sim_ip,'</b> auf Band *',Band,'* bei <b>',operator,'</b> mit Signalstärke (RSSI / RSRP / RSQR / SINR) <strong>',RSSI,' / ',RSRP,' / ',RSRQ,' / ', SNRI, '</strong> dB') AS Value FROM gsm_data ORDER BY created_at DESC LIMIT 1;";
+                $data4WoMo_sql = "SELECT CONCAT('<b>*',connstate,'*</b> (<i>',conntype,'</i>) mit IP-Adresse: <b>',sim_ip,'</b> auf Band *',Band,'* bei <b>',operator,'</b> mit Signalstärke (RSSI / RSRP / RSQR / SINR) <strong>',RSSI,' dBm / ',RSRP,' dB / ',RSRQ,' dB / ', SINR, ' dB</strong>') AS Value FROM gsm_data ORDER BY created_at DESC LIMIT 1;";
                 break;
             case "gsm_provider":
                 $data4WoMo_sql = "SELECT operator AS Value FROM gsm_data ORDER BY created_at DESC LIMIT 1;";
