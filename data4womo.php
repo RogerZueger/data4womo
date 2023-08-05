@@ -3,7 +3,7 @@
 Plugin Name: data4WoMo - Daten für mein Wohnmobil
 Plugin URI: https://www.roger-zueger.ch
 Description: Ein WordPress-Plugin, das bestimmte Werte und Parameter aus einer zentralen MySQL Datenbank ausliest, welche zuvor dort von verschiedenen Tools & Programmen gespeichert wurden.
-Version: 1.0
+Version: 1.2
 Author: Züger, Roger
 Author URI: https://www.roger-zueger.ch
 License: GPLv2 or later
@@ -470,10 +470,10 @@ function data4WoMo_with_parametern($atts) {
                         $dataWoMo_row_HTML = "<tr><td>[[name]]</td><td><center>[[JStart]]</center></td><td><center>[[JEnd]]</center></td><td><center><a target=_new href=\"https://service.zuegers-on-the-road.observer/get/show_trip.php?trip_id=[[id]]\">Öffne Maps</a></center></td></tr>";
                         break;
                     case "reisen_info":
-                        $data4WoMo_sql = "SELECT name, CONCAT(DATEDIFF(journey_ends, journey_begins), ' Tage') as days, CONCAT((select Round(SUM(distance)/1000,0) from gps_data where created_at > journey_begins and created_at < journey_ends order by created_at ASC),' km') as distance, CONCAT((select ROUND(altitude_calc,0) from gps_data where created_at > journey_begins and created_at < journey_ends order by altitude_calc DESC Limit 1),' m.ü.M') as maxhigh, CONCAT((select ROUND(speed_calc,1) from gps_data where created_at > journey_begins and created_at < journey_ends order by speed_calc DESC Limit 1),' km/h') as maxspeed FROM journeys where id != 8 order by journey_begins ASC;";
-                        $data4WoMo_sql_field_list = ["name", "days", "distance", "maxhigh", "maxspeed"];
-                        $dataWoMo_return_HTML = "<table border=0><tr><td><h5>Name</h5></td><td><center><h5>Reisezeit</h5></center></td><td><center><h5>Distanz</h5></center></td><td><center><h5>Höhe (max)</h5></center></td><td><center><h5>Gesch. (max)</h5></center></td></tr>";
-                        $dataWoMo_row_HTML = "<tr><td>[[name]]</td><td><center>[[days]]</center></td><td><center>[[distance]]</center></td><td><center>[[maxhigh]]</center></td><td><center>[[maxspeed]]</center></td></tr>";
+                        $data4WoMo_sql = "SELECT id, name, CONCAT(DATEDIFF(journey_ends, journey_begins), ' Tage') as days, CONCAT((select Round(SUM(distance)/1000,0) from gps_data where created_at > journey_begins and created_at < journey_ends order by created_at ASC),' km') as distance, CONCAT((select ROUND(altitude_calc,0) from gps_data where created_at > journey_begins and created_at < journey_ends order by altitude_calc DESC Limit 1),' m.ü.M') as maxhigh FROM journeys where id != 8 order by journey_begins ASC;";
+                        $data4WoMo_sql_field_list = ["name", "days", "distance", "maxhigh", "id"];
+                        $dataWoMo_return_HTML = "<table border=0><tr><td><h5>Name</h5></td><td><center><h5>Reisezeit</h5></center></td><td><center><h5>Distanz</h5></center></td><td><center><h5>Höhe (max)</h5></center></td><td><center><h5>Route</h5></center></td></tr>";
+                        $dataWoMo_row_HTML = "<tr><td>[[name]]</td><td><center>[[days]]</center></td><td><center>[[distance]]</center></td><td><center>[[maxhigh]]</center></td><td><center><a target=_new href=\"https://service.zuegers-on-the-road.observer/get/show_trip.php?trip_id=[[id]]\">Öffne Maps</a></center></td></tr>";
                         break;
                     case "reisen_env_innen":
                         $data4WoMo_sql = "SELECT name, CONCAT((select temperature from environment_data where sensor_id=9 and created_at > journey_begins and created_at < journey_ends order by temperature ASC LIMIT 1),' °C') as inside_tempmin, CONCAT((select temperature from environment_data where sensor_id=9 and created_at > journey_begins and created_at < journey_ends order by temperature DESC LIMIT 1),' °C') as inside_tempmax, CONCAT((select ROUND(AVG(temperature),1) from environment_data where sensor_id=9 and created_at > journey_begins and created_at < journey_ends),' °C') as inside_tempavg, CONCAT((select humidity from environment_data where sensor_id=9 and created_at > journey_begins and created_at < journey_ends order by humidity ASC LIMIT 1),' %') as inside_hummin, CONCAT((select humidity from environment_data where sensor_id=9 and created_at > journey_begins and created_at < journey_ends order by humidity DESC LIMIT 1),' %') as inside_hummax, CONCAT((select ROUND(AVG(humidity),0) from environment_data where sensor_id=9 and created_at > journey_begins and created_at < journey_ends),' %') as inside_humavg FROM journeys where id != 8 order by journey_begins ASC;";
