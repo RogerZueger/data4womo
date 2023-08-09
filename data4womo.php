@@ -3,7 +3,7 @@
 Plugin Name: data4WoMo - Daten für mein Wohnmobil
 Plugin URI: https://www.roger-zueger.ch
 Description: Ein WordPress-Plugin, das bestimmte Werte und Parameter aus einer zentralen MySQL Datenbank ausliest, welche zuvor dort von verschiedenen Tools & Programmen gespeichert wurden.
-Version: 1.2
+Version: 1.3
 Author: Züger, Roger
 Author URI: https://www.roger-zueger.ch
 License: GPLv2 or later
@@ -31,7 +31,6 @@ function data4WoMo_add_admin_menu() {
     // Füge ein Menü in den Adminbereich hinzu
     add_options_page('data4WoMo Einstellungen', 'data4WoMo Einstellungen', 'manage_options', 'data4WoMo-plugin', 'data4WoMo_options_page');
 }
-
 
 function data4WoMo_options_page() {
     // Erstelle die Einstellungsseite
@@ -97,6 +96,7 @@ function data4WoMo_options_page() {
                         <li><b><i>aktuell_land</i></b>: Aktuelles Land (Standort) gemäss GPS und Google Geolocation
                             Dienst</li>
                     </ul>
+                    <hr>
                     <ul>
                         <li><b><i>total_altitude_max</i></b>: Höchst gemessener Punkt gemäss GPS aller
                             aufgezeichneten Routen</li>
@@ -113,6 +113,7 @@ function data4WoMo_options_page() {
                         <li><b><i>total_steigung_total</i></b>: Total aller Steigungen (in Meter) gemäss
                             GPS/Höhendaten Google auf allen aufgezeichneten Routen</li>
                     </ul>
+                    <hr>
                     <ul>
                         <li><b><i>temperatur_aussen</i></b>: Zuletzt gemessene Aussentemperatur (wird ca.
                             alle 5-10min aktualisiert)</li>
@@ -155,15 +156,25 @@ function data4WoMo_options_page() {
                         <li><b><i>aktuell_max_luftfeuchtigkeit_innen</i></b>: Minimal gemessene
                             Innenraumluftfeuchtigkeit auf aktuell aufgezeichneter Route</li>
                     </ul>
+                    <hr>
                     <ul>
-                        <li><b><i>gsm</i></b>: GSM Informationen als String (wie Provider, Signalstärke,
-                            etc)</li>
+                        <li><b><i>gsm</i></b>: GSM Verbindungsinformationen als String</li>
+                        <li><b><i>gsm_signalstaerke</i></b>: GSM/LTE/5G Signalstaerke(n) als String</li>
                         <li><b><i>gsm_provider</i></b>: Name und ID des aktuellen Providers</li>
                         <li><b><i>gsm_connection_type</i></b>: GSM Verbindungstyp</li>
                         <li><b><i>gsm_netstate</i></b>: Aktueller GSM Netzstatus</li>
                         <li><b><i>gsm_external_ip</i></b>: Externe IP-Adresse (Providerseite)</li>
                         <li><b><i>gsm_last_update</i></b>: Zeitpuntk des letzten Updates der GSM Informationen</li>
                     </ul>
+                    <hr>
+                    <ul>
+                        <li><b><i>aufbaubatterie_spannung</i></b>: Zuletzt gemessene Spannung Aufbaubatterie</li>
+                        <li><b><i>aufbaubatterie_spannung_max_24h</i></b>: Höchste gemessene Spannung Aufbaubatterie in
+                            den letzten 24h</li>
+                        <li><b><i>aufbaubatterie_spannung_min_24h</i></b>: Kleinste gemessene Spannung Aufbaubatterie in
+                            den letzten 24h</li>
+                    </ul>
+                    <hr>
                     <hr>
                     <b>table</b> - Liefert eine HTML Tabelle anhand des Parameters <b>table</b> aus Daten aus der
                     Datenbank zurück. Mögliche Werte für den Parameter sind:<br>
@@ -243,6 +254,8 @@ function data4WoMo_with_parametern($atts) {
     $data4WoMo_db_passwd = get_option('data4WoMo_db_passwd');
 
     // Create MySQL connection
+    $data4WoMo_sql = "SELECT 'N/A' as Value;";
+    $data4WoMo_sql_field = "Value";
     $data4WoMo_dblink = mysqli_connect($data4WoMo_db_host, $data4WoMo_db_user, $data4WoMo_db_passwd, $data4WoMo_db_name);
 
     // Check connection
@@ -253,14 +266,24 @@ function data4WoMo_with_parametern($atts) {
         if ($data4WoMo_params['value'] != 'N/A') {
 
             // default values festlegen
-            $data4WoMo_sql = "";
-            $data4WoMo_sql_field = "Value";
             $data4WoMo_post_text = "";
             $data4WoMo_pre_text = "";
 
             switch(strtolower($data4WoMo_params['value'])){
+                case "aufbaubatterie_spannung":
+                    $data4WoMo_sql = "SELECT voltage_max as Value FROM voltage_current_power_data WHERE sensor_id=14 ORDER BY created_at DESC LIMIT 1;";
+                    $data4WoMo_post_text = " V";
+                    break;
+                case "aufbaubatterie_spannung_max_24h":
+                    $data4WoMo_sql = "SELECT MAX(voltage_max) as Value FROM voltage_current_power_data WHERE sensor_id=14 AND created_at >= NOW() - INTERVAL 1 DAY;";
+                    $data4WoMo_post_text = " V";                    
+                    break;
+                case "aufbaubatterie_spannung_min_24h":
+                    $data4WoMo_sql = "SELECT MIN(voltage_min) as Value FROM voltage_current_power_data WHERE sensor_id=14 AND created_at >= NOW() - INTERVAL 1 DAY;";
+                    $data4WoMo_post_text = " V";                    
+                    break;
                 case "gsm":
-                    $data4WoMo_sql = "SELECT CONCAT('<b>*',connstate,'*</b> (<i>',conntype,'</i>) mit IP-Adresse: <b>',sim_ip,'</b> auf Band *',Band,'* bei <b>',operator,'</b> mit Signalstärke (RSSI / RSRP / RSQR / SINR) <strong>',RSSI,' dBm / ',RSRP,' dB / ',RSRQ,' dB / ', SINR, ' dB</strong>') AS Value FROM gsm_data ORDER BY created_at DESC LIMIT 1;";
+                    $data4WoMo_sql = "SELECT CONCAT('<b>*',connstate,'*</b> (<i>',conntype,'</i>) mit IP-Adresse: <b>',sim_ip,'</b>@',Band,' bei <b>',operator,'</b>') AS Value FROM gsm_data ORDER BY created_at DESC LIMIT 1;";
                     break;
                 case "gsm_provider":
                     $data4WoMo_sql = "SELECT operator AS Value FROM gsm_data ORDER BY created_at DESC LIMIT 1;";
@@ -276,7 +299,10 @@ function data4WoMo_with_parametern($atts) {
                     break;
                 case "gsm_last_update":
                     $data4WoMo_sql = "SELECT created_at AS Value FROM gsm_data ORDER BY created_at DESC LIMIT 1;";
-                    break;                
+                    break;
+                case "gsm_signalstaerke":
+                    $data4WoMo_sql = "SELECT CONCAT('RSSI / RSRP / RSQR / SINR: ',RSSI,' dBm / ',RSRP,' dB / ',RSRQ,' dB / ', SINR, ' dB') AS Value FROM gsm_data ORDER BY created_at DESC LIMIT 1;";
+                    break;
                 case "total_strecke":
                     $data4WoMo_sql = "SELECT ROUND(SUM(distance / 1000),1) AS Value FROM gps_data;";
                     $data4WoMo_post_text = " km";
@@ -512,3 +538,4 @@ function data4WoMo_remove_options() {
     unregister_setting('data4WoMo_options', 'data4WoMo_db_passwd');
     unregister_setting('data4WoMo_options', 'data4WoMo_db_user');
 }
+?>
