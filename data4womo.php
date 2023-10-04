@@ -218,9 +218,9 @@ function createHTMLRow(string $data4WoMo_SQL, array $data4WoMo_field_list, strin
                         foreach($data4WoMo_field_list as $data4WoMo_loc_table_field) {
                             if (isset($loc_data4WoMo_sql_row[$data4WoMo_loc_table_field])) {
                                 $loc_data4WoMo_row = str_replace("[[". $data4WoMo_loc_table_field ."]]", $loc_data4WoMo_sql_row[$data4WoMo_loc_table_field], $loc_data4WoMo_row);
-                            }                        
-                        }                        
-                        $data4WoMo_loc_return .= $loc_data4WoMo_row;                    
+                            }
+                        }
+                        $data4WoMo_loc_return .= $loc_data4WoMo_row;
                     }
                 }
             }
@@ -372,11 +372,11 @@ function data4WoMo_with_parametern($atts) {
                     $data4WoMo_sql = "SELECT country_name as Value FROM gps_data ORDER BY created_at DESC LIMIT 1;";
                     break;
                 case "temperatur_innen":
-                    $data4WoMo_sql = "SELECT ROUND(temperature, 1) AS Value FROM environment_data WHERE sensor_id=9 ORDER BY created_at DESC LIMIT 1;";
+                    $data4WoMo_sql = "SELECT ROUND(temperature, 1) AS Value FROM environment_data WHERE temperature IS NOT NULL AND sensor_id=9 ORDER BY created_at DESC LIMIT 1;";
                     $data4WoMo_post_text = " °C";
                     break;
                 case "min_temperatur_innen":
-                    $data4WoMo_sql = "SELECT ROUND(temperature, 1) AS Value FROM environment_data WHERE sensor_id=9 ORDER BY temperature ASC LIMIT 1;";
+                    $data4WoMo_sql = "SELECT ROUND(temperature, 1) AS Value FROM environment_data WHERE temperature IS NOT NULL AND sensor_id=9 ORDER BY temperature ASC LIMIT 1;";
                     $data4WoMo_post_text = " °C";
                     break;
                 case "max_temperatur_innen":
@@ -384,7 +384,7 @@ function data4WoMo_with_parametern($atts) {
                     $data4WoMo_post_text = " °C";
                     break;
                 case "aktuell_min_temperatur_innen":
-                    $data4WoMo_sql = "SELECT ROUND(temperature, 1) AS Value FROM environment_data WHERE sensor_id=9 AND created_at > (SELECT journey_begins FROM journeys WHERE journey_ends ='0000-00-00 00:00:00' order by id DESC LIMIT 1) ORDER BY temperature ASC LIMIT 1;";
+                    $data4WoMo_sql = "SELECT ROUND(temperature, 1) AS Value FROM environment_data WHERE temperature IS NOT NULL AND sensor_id=9 AND created_at > (SELECT journey_begins FROM journeys WHERE journey_ends ='0000-00-00 00:00:00' order by id DESC LIMIT 1) ORDER BY temperature ASC LIMIT 1;";
                     $data4WoMo_post_text = " °C";
                     break;
                 case "aktuell_max_temperatur_innen":
@@ -397,7 +397,7 @@ function data4WoMo_with_parametern($atts) {
                     $data4WoMo_post_text = " %";
                     break;      
                 case "min_luftfeuchtigkeit_innen":
-                    $data4WoMo_sql = "SELECT humidity FROM environment_data WHERE sensor_id=9 ORDER BY humidity ASC LIMIT 1;";
+                    $data4WoMo_sql = "SELECT humidity FROM environment_data WHERE humidity IS NOT NULL AND sensor_id=9 ORDER BY humidity ASC LIMIT 1;";
                     $data4WoMo_sql_field = "humidity";
                     $data4WoMo_post_text = " %";
                     break;
@@ -407,7 +407,7 @@ function data4WoMo_with_parametern($atts) {
                     $data4WoMo_post_text = " %";
                     break;
                 case "aktuell_min_luftfeuchtigkeit_innen":
-                    $data4WoMo_sql = "SELECT humidity FROM environment_data WHERE sensor_id=9 AND created_at > (SELECT journey_begins FROM journeys WHERE journey_ends ='0000-00-00 00:00:00' order by id DESC LIMIT 1) ORDER BY humidity ASC LIMIT 1;";
+                    $data4WoMo_sql = "SELECT humidity FROM environment_data WHERE humidity IS NOT NULL AND sensor_id=9 AND created_at > (SELECT journey_begins FROM journeys WHERE journey_ends ='0000-00-00 00:00:00' order by id DESC LIMIT 1) ORDER BY humidity ASC LIMIT 1;";
                     $data4WoMo_sql_field = "humidity";
                     $data4WoMo_post_text = " %";
                     break;
