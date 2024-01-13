@@ -3,7 +3,7 @@
 Plugin Name: data4WoMo - Daten für mein Wohnmobil
 Plugin URI: https://www.roger-zueger.ch
 Description: Ein WordPress-Plugin, das bestimmte Werte und Parameter aus einer zentralen MySQL Datenbank ausliest, welche zuvor dort von verschiedenen Tools & Programmen gespeichert wurden.
-Version: 1.3
+Version: 1.4
 Author: Züger, Roger
 Author URI: https://www.roger-zueger.ch
 License: GPLv2 or later
@@ -442,12 +442,12 @@ function data4WoMo_with_parametern($atts) {
                     $data4WoMo_post_text = " %";
                     break;
                 case "min_luftfeuchtigkeit_aussen":
-                    $data4WoMo_sql = "SELECT humidity FROM environment_data WHERE sensor_id=16 ORDER BY humidity ASC LIMIT 1;";
+                    $data4WoMo_sql = "SELECT humidity FROM environment_data WHERE sensor_id=16 and humidity is not null ORDER BY humidity ASC LIMIT 1;";
                     $data4WoMo_sql_field = "humidity";
                     $data4WoMo_post_text = " %";
                     break;
                 case "max_luftfeuchtigkeit_aussen":
-                    $data4WoMo_sql = "SELECT humidity FROM environment_data WHERE sensor_id=16 ORDER BY humidity DESC LIMIT 1;";
+                    $data4WoMo_sql = "SELECT humidity FROM environment_data WHERE sensor_id=16 and humidity is not null ORDER BY humidity DESC LIMIT 1;";
                     $data4WoMo_sql_field = "humidity";
                     $data4WoMo_post_text = " %";
                     break;
